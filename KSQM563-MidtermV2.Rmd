@@ -1,0 +1,209 @@
+---
+title: "Midterm Project"
+author: "Kunal Shukla"
+date: "10/26/2020"
+output:
+  pdf_document: default
+  html_document: default
+  fontsize: 10pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Importing tidyverse functions
+library(tidyverse)
+```
+
+# Wellness Product Market Sizing
+You and your team have been hired as consultants for a US-based healthcare company looking to break into the growing wellness industry (think AI-assisted workout videos, delivered meals, nutritional supplements, community interventions). They are interested in understanding the size of the opportunity overall and have asked you to look at some publicly available data provided by the CDC to understand the leading causes of death nationwide to identify opportunities for new product development.
+
+https://www.cdc.gov/nchs/nvss/mortality_public_use_data.htm 
+https://www.cdc.gov/nchs/data_access/vitalstatsonline.htm#Mortality_Multiple 
+
+You have been provided with 2 years of mortality data (2014 and 2015) which contain demographic details which includes age and ICD-10 codes (medical diagnosis codes attributable to the cause of death). These ICD-10 diagnosis codes can be matched with the "Elixhauser Grouper" which simplifies the number of categories: https://www.hcup-us.ahrq.gov/toolssoftware/comorbidity/comorbidity.jsp .
+
+Using this information you are asked to identify a group of individuals for whom a wellness product could be well-suited.
+
+Outlined below are 4 tasks that will help you understand the size of the market/product opportunity. This document will serve as a report to your clients.
+
+## Task 1: A first look at the data
+**1) Read in the data from 2014 and check the dimensions of this table.**
+```{r}
+getwd()
+setwd("/Users/kunalshukla/Desktop/Rfiles")
+
+
+full_2014 = read_csv("2014_data.csv")
+dim(full_2014)
+```
+
+**2) You decide that this data_frame takes much too long to manipulate and decide to take a subset of it in order to make later steps more manageable. Take a random sample of 100,000 rows from this data_frame.**
+```{r}
+
+# Assuming you want to create a random sample of 100,000 rows
+sampled_data_2014 <- full_2014 %>%
+  sample_n(100000)
+
+# Check the dimensions of the sampled data
+dim(sampled_data)
+view(sampled_data)
+```
+
+
+**3) While this is still a sizeable sample, you worry that this subset may not be representative of the full dataset. To check this, you want to look at some summary statistics from both tables to ensure they are still representative. Look at the average age and %Female in both tables. In your opinion, is there significant variation?** **NOTE**: A bit of cleaning is required before looking at average age. Per the data dictionary, *detail_age* shows the individual's age in years only when detail_age_type == 1. Do some quality checks (e.g. sort in descending/ascending order to find extreme values) to make sure this makes sense. Provide rationale for any other exclusions.
+
+```{r}
+
+sampled_data_2014 <- sampled_data %>%
+  mutate(detail_age = as.numeric(as.character(detail_age)))
+
+#Assuming you have a data frame named 'sampled_data' with a 'sex' column
+sampled_data <- sampled_data %>%
+  mutate(sex_numeric = ifelse(sex == "F", 0, ifelse(sex == 'M', 1, NA)))
+
+
+# Calculate the average age and percentage of females and males in the sampled dataset
+sampled_data_summary_2014 <- sampled_data_2014 %>%
+  filter(detail_age_type == 1) %>%
+  summarize(
+    Average_Age = mean(as.numeric(detail_age, na.rm = TRUE)),
+    Percentage_Female = mean(sex_numeric == 0) * 100,
+    Percentage_Male = mean(sex_numeric == 1) * 100
+  )
+
+# Compare the summary statistics
+sampled_data_summary_2014
+
+
+
+
+```
+
+
+**4) Satisfied with the degree of variability (or lack thereof) in the previous step, you remove the larger data_frame (using rm()) and repeat steps 1-2 with the 2015 data_frame.**
+```{r}
+rm(full_2014)
+
+full_2015 = read_csv("2015_data.csv")
+
+getwd()
+setwd("/Users/kunalshukla/Desktop/Rfiles")
+
+dim(full_2015)
+
+```
+
+
+
+```{r}
+# Assuming you want to create a random sample of 100,000 rows
+sampled_data_2015 <- full_2015 %>%
+  sample_n(100000)
+
+# Check the dimensions of the sampled data
+dim(sampled_data2)
+view(sampled_data2)
+```
+
+
+```{r}
+
+
+
+#Assuming you have a data frame named 'sampled_data' with a 'sex' column
+sampled_data_2015 <- sampled_data2 %>%
+  mutate(sex_numeric = ifelse(sex == "F", 0, ifelse(sex == 'M', 1, NA)))
+
+#Calculate the average age and percentage of females and males in the sampled dataset
+sampled_data_summary_2015 <- sampled_data_2015 %>%
+  filter(detail_age_type == 1) %>%
+  summarize(
+    Average_Age = mean(as.numeric(detail_age, na.rm = TRUE)),
+    Percentage_Female = mean(sex_numeric == 0) * 100,
+    Percentage_Male = mean(sex_numeric == 1) * 100
+  )
+
+#Compare the summary statistics
+sampled_data_summary_2015
+```
+
+
+
+**5) Combine these two data_frames into a single data_frame**
+```{r}
+
+# Assuming you have 'sampled_data_2014' and 'sampled_data_2015' data frames
+
+# Convert 'detail_age' to character in both data frames
+sampled_data_2014 <- sampled_data_2014 %>%
+  mutate(detail_age = as.character(detail_age))
+
+sampled_data_2015 <- sampled_data_2015 %>%
+  mutate(detail_age = as.character(detail_age))
+
+# Now you can safely use bind_rows
+combined_sample_data <- bind_rows(sampled_data_2014, sampled_data_2015)
+
+# Check the combined data
+combined_sample_data
+
+
+
+```
+
+
+## Task 2: How does age of death vary by Male/Female?
+```{r}
+# Assuming you have a data frame named 'your_data' with a 'sex' column and 'age_of_death' column
+
+# Filter the data to remove missing age_of_death values
+combined_sample_data_age_of_death <- combined_sample_data %>%
+  group_by(sex) %>% 
+  summarize(Average_Age = mean(as.numeric(detail_age, na.rm = TRUE)))
+
+# Calculate summary statistics
+summary_stats_for_age_of_death <- combined_sample_data %>%
+  group_by(sex, current_data_year) %>%
+  summarize(
+    Average_Age_of_Death = mean(as.numeric(detail_age)),
+    Median_Age_of_Death = median(as.numeric(detail_age)),
+    Average_Age_by_Year = mean(as.numeric(detail_age))
+   
+  )
+
+# Create data frame
+age_data <- combined_sample_data %>%
+  filter(detail_age_type == 1) %>%
+  select(sex, detail_age)
+
+ 
+
+ggplot(age_data, aes(x = detail_age, fill = sex)) +
+  geom_histogram(binwidth = 5, stat = "count", position = "identity", alpha = 0.7) +
+  labs(x = "Age", y = "Count") +
+  scale_fill_manual(values = c("blue", "pink"), labels = c("Male", "Female")) +
+  theme_minimal() 
+
+
+# Print the summary statistics
+print(summary_stats_for_age_of_death)
+
+
+```
+
+**1) You are aware of some basic medical knowledge that women tend to have a longer life expectancy than men, so you generate two more questions:**  
+a) What is the average age of death for women versus men in these data?   
+
+b) Does this relationship hold when we look at the average age by year? Note any differences.
+
+**2) Unsatisfied with the simple averages, you would like to see the distribution of age of mortality over this population over both years. Plot the distribution of age for Male and Female and note any differences. What might explain the difference in averages?**
+
+## Task 3: What are the most prevalent diagnoses for cause of death?
+**1) You would like to see which diseases, over the two years, are most prevalent. Consider the ICD10 code that describes the underlying cause of death (icd_code_10th_revision). What are the top 5 most prevalent diseases?**
+
+**2) You decide that the ICD 10 code is too granular and instead would like to look at a grouping of these codes. You opt for the *Elixhauser* comorbidity groupings from HCUP (https://www.hcup-us.ahrq.gov/toolssoftware/comorbidity/comorbidity.jsp). Read in the .csv called "Elixhauser.csv" that relates ICD codes to the Elixhauser comorbidity group and join this with the dataset used in 1 (above) to find the top 5 most common categories.**
+
+**3) Visualize the distribution of age of death for each of the top 5 disease categories found in 2 (above).**
+
+## Task 4: Create a recommendation for a target market/product
+Building off your analyses in the previous tasks, consider a subset of the total population and a cause of death disproportionately impacting that population (e.g. young people dying from heart disease). Create a visualization contrasting this population with the population as a whole and explain how this informs your final target market/product recommendation.
