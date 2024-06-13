@@ -1,5 +1,5 @@
 ---
-title: "KSIndividualAssignment1"
+title: "KSProject1"
 author: "Kunal Shukla"
 date: "2023-09-23"
 output: html_document
