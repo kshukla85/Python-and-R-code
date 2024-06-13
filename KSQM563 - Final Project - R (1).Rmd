@@ -1,6 +1,6 @@
 ---
 title: "QM563 - Final Project"
-author: "YOUR NAME HERE"
+author: "Kunal Shukla"
 date: "12/14/2020"
 output:
   pdf_document: default
