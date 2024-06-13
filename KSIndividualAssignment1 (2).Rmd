@@ -1,0 +1,102 @@
+---
+title: "KSIndividualAssignment1"
+author: "Kunal Shukla"
+date: "2023-09-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+this code chunk loads the dataset
+```{r}
+load("NC_Covid_Data_Sep-4-2021 (1).RData")
+```
+mean(case_count) finds the average of the variable case_count and is assigned to the variable nc_average_case_count which is the average case_count of residents
+```{r}
+nc_average_case_count = mean(case_count) # mean of the case count
+print(nc_average_case_count)
+```
+mean(vaccination_rate) finds the average of the variable vaccination_rate and is assigned to the variable nc_average_vax which is the average vaccination rate of residents
+```{r}
+nc_average_vax = mean(vaccination_rate) # mean of the vaccination rate
+print(nc_average_vax)
+```
+
+
+# ? which county has the highest vaccination rate? #you need to find the max(case_count). Martin County
+```{r}
+county_with_highest_vax_rate = subset(nc_county_list, vaccination_rate == max(vaccination_rate))
+print(county_with_highest_vax_rate)
+```
+
+#This filter function filters county names in filt_counties
+```{r}
+filter_func = function(input_vector, county_names, filt_counties) #vector that inputs input_vector, county_names, filt_counties
+  
+{
+  filt = county_names %in% filt_counties #county_names are filtered in filt_counties
+  output_vector = input_vector[filt] #filtered input_vector is assigned to output_vector
+  return(output_vector) #output vector is returned
+}
+
+```
+a vector function is used to concatenate county names to the durham counties to create a list of Durham counties that we will use in narrowing down our data
+```{r}
+durham_counties = c("Wake", "Granville", "Person", "Orange", "Chatham", "Durham") # durham counties are specified in this vector c for durham_counties, the variable
+```
+
+This code is going to filter the number of cases for each of the durham counties using the filter function we created below.
+```{r}
+filtered_cases = filter_func(input_vector = case_count, #case count is assigned to input_vector in the filter_function vector for filtered cases
+                             county_names = nc_county_list, #nc_county_list is assigned to county_names
+                             filt_counties = durham_counties) #durham_counties is assigned to filt_counties
+print(filtered_cases)
+```
+
+This code is going to filter then number of vaccination rates for each of the durham counties using the filter function we created below. 
+```{r}
+filtered_vax = filter_func(input_vector = vaccination_rate, # vaccination rate is assigned to input vector to filter for vaccination rate
+                           county_names = nc_county_list,  # filtering for nc_county_list by assigning it to county_names
+                           filt_counties = durham_counties) # filtering by vaccination rate by nc_county_list by durham_counties by assigning it to filt_counties
+print(filtered_vax)
+```
+ ? what are the sizes of the resulting vectors? Are they the same size? 
+The sizes of the filtered_cases is bigger than the filtered vaccination rates. The sizes are not the same.
+
+# The plot function specifies the variables of the scatter plot with the x variable being vaccination rate and the y variable being case_count and the main title for the scatter plot being vaccination rates vs covid infection rates. xlab and ylab shows the x and y axis titles of the scatterplot.
+```{r}
+plot(x = vaccination_rate, # x coordinate
+     y = case_count, # y coordinate
+     pch = 20,
+     main = "Vaccination Rates vs COVID Infection Rates", # title of scatterplot
+     xlab = 'Vaccination Rate (%)', #x axis title
+     ylab = 'COVID Infection Rate (Per 100k)' # y axis title
+     )
+
+
+```
+The for loop uses i as the iterable variable to iterate over the the length from 1 to the vector length of the durham_counties, and the points are plotted for x and y by looking at filtered_vaccination rates for the iterable variable i passing through the iteration of 1 to the vector length of the durham counties by looking at the vaccination rate versus the covid infection rate, hence plotting (x,y) per point. col = blue specifies the plot points in the scatter plot in the color blue of the durham counties for where they are in the graph with vaccination rate versus covid infection rate.
+
+ ? what does this mean? The for loop uses i as the iterable variable to loop through the iteration in the for loop figure out coordinates of the durham counties and to plot it
+```{r}
+
+plot(x = vaccination_rate, # x coordinate
+     y = case_count, # y coordinate
+     pch = 20,
+     main = "Vaccination Rates vs COVID Infection Rates", # title of scatterplot
+     xlab = 'Vaccination Rate (%)', #x axis title
+     ylab = 'COVID Infection Rate (Per 100k)' # y axis title
+     )
+
+for (i in 1:length(durham_counties)){ # i loops through 1:length(durham_counties)
+  points(x = filtered_vax[i], y = filtered_cases[i], pch = 8, col = 'blue') #x and y coordinates are specified for filtered_vax and filtered_cases, and blue color
+  text(x = filtered_vax[i], y = filtered_cases[i], labels = durham_counties[i], # specifies text with text function
+       cex=.9, font=1.5, pos=4) #specifies symbol size, font, and part of speech
+}
+
+```
+
+
+
+

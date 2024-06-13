@@ -1,0 +1,190 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+Title: "Group Assignment 1"
+Authors: "Shukla, Kunal(ks765)", "Millen, Spencer(smm246)", "Sohail, Ifrah(is172)", "Siewny, Lauren(Les62)", "Zheng, Peng Xi(pz68)", "Manning, Felecia(fm150)"
+Date: "10/16/2022"
+Output:
+  html_document: default
+
+
+#Read the libraries and set working directory
+```{r}
+library(tidyverse)
+library(readxl)
+getwd()
+setwd("C:/Users/ifrah/Dropbox/PC/Downloads")
+```
+
+#Load in the CSV and Excel files
+```{r}
+H2019 = read_xlsx("Happiness_2019-2021.xlsx", sheet = as.character(2019))
+H2020 = read_xlsx("Happiness_2019-2021.xlsx", sheet = as.character(2020))
+H2021 = read_xlsx("Happiness_2019-2021.xlsx", sheet = as.character(2021))
+H2005_18 = read_csv("Happiness_2005-2018.csv")
+Regions = read_csv('Regions.csv')
+```
+
+#Print the data frames
+```{r}
+H2019
+H2020
+H2021
+H2005_18
+Regions
+```
+#Rename the columnes
+```{r}
+# Rename specific columns in H2019
+colnames(H2019) = c("Country", "Year", "Life Ladder", "Log GDP per capital", "Social Support", "Healthy life expectancy at birth", "Freedom to make life choices", "Generosity", "Perceptions of corruption", "Positive affect", "Negative affect", "Confidence in national government")  # Replace with your new column names
+
+# Rename specific columns in H2020
+colnames(H2020) = c("Country", "Year", "Life Ladder", "Log GDP per capital", "Social Support", "Healthy life expectancy at birth", "Freedom to make life choices", "Generosity", "Perceptions of corruption", "Positive affect", "Negative affect", "Confidence in national government")  # Replace with your new column names
+
+# Rename specific columns in H2021
+colnames(H2021) = c("Country", "Year", "Life Ladder", "Log GDP per capital", "Social Support", "Healthy life expectancy at birth", "Freedom to make life choices", "Generosity", "Perceptions of corruption", "Positive affect", "Negative affect", "Confidence in national government")  # Replace with your new column names
+
+# Rename specific columns in H2005_18
+colnames(H2005_18) = c("Country", "Year", "Life Ladder", "Log GDP per capital", "Social Support", "Healthy life expectancy at birth", "Freedom to make life choices", "Generosity", "Perceptions of corruption", "Positive affect", "Negative affect", "Confidence in national government")  # Replace with your new column names
+
+# Rename specific columns in Regions
+colnames(Regions) = c("Country", "Region")  # Replace with your new column names
+```
+
+
+#Load the dplyr package
+```{r}
+# Load the dplyr package
+library(dplyr)
+```
+
+
+
+#combine data frames using bind_rows
+```{r}
+combined_data = bind_rows(H2005_18, H2019, H2020, H2021)
+combined_data
+combined_data = inner_join(combined_data, Regions, by = "Country")
+combined_data
+```
+
+#Create a vector for Canada and US to filter through the merged data
+```{r}
+Canada_and_US = c("Canada", "United States")                            
+combined_data_USA_and_Canada = combined_data[combined_data$Country %in% Canada_and_US, ] 
+
+```
+
+#Filter the data for Canada and the United States
+```{r}
+Canada_and_US <- c("Canada", "United States")
+filtered_data <- combined_data[combined_data$Country %in% Canada_and_US, ]
+```
+
+
+### Find the 3 happiest years for each country. Assign filtered_data frame to happiest_years and then group the data with country and year and then summarize the data by looking for average happiness through the mean of the life ladder and then sort the data using the arrange function for country and further sorting by descending order using average_happinness and then group by country again to slice or subset the data from the first three top rows that are in the descending columns.
+```{r}
+
+happiest_years <- filtered_data %>%
+  group_by(Country, Year) %>%
+  summarize(Average_Happiness = mean(`Life Ladder`)) %>%
+  arrange(Country, desc(Average_Happiness)) %>%
+  group_by(Country) %>%
+  slice(1:3)
+```
+  
+
+
+### Find the 3 unhappiest years for each country. Assign filtered_data frame to happiest_years and then group the data with country and year and then summarize the data by looking for average happiness through the mean of the life ladder and then sort the data using the arrange function for country and average_happiness then group by country again to slice or subset the data from the first three top rows that are in the descending columns.  
+```{r}
+unhappiest_years <- filtered_data %>%
+  group_by(Country, Year) %>%
+  summarize(Average_Happiness = mean(`Life Ladder`)) %>%
+  arrange(Country, Average_Happiness) %>%
+  group_by(Country) %>%
+  slice(1:3)
+```
+  
+
+
+### Print the results
+```{r}
+cat("Happiest Years for Canada and the United States:\n")
+print(happiest_years)
+```
+
+
+
+### Print the results
+```{r}
+cat("\nUnhappiest Years for Canada and the United States:\n")
+print(unhappiest_years)
+```
+## 1. Do Canada and the United States have common happy/unhappy years? Filter the combined dataset to view Happiness and associated variables for the United States and Canada over all available years. Find the 3 happiest and unhappiest years for each country in the data provided. Do they seem to align with one another? Are there any key features that differ over the years you selected?
+
+Answer: We deduced that there's a certain synchrony in the happiest years for both countries: the United States experienced the happiest years from 2007 to 2013, closely mirrored by Canada's happiest years between 2008 and 2013. However, when it comes to the unhappiest years, the two nations diverge. The U.S. faced its unhappiest years from 2015 to 2018, whereas Canada's was from 2019 to 2021. A notable observation is the overall decline in happiness over the years for both nations. The U.S. experienced a dip in pre-pandemic years, while Canada's decline coincided with the pandemic period. Despite this decline and the challenges of recent times, Canada has generally maintained a higher happiness index, although both countries show a downward trend.
+
+
+
+### Combined_data is assigned to the happiest_region variable as a new data frame and then we group by region and year. Then, we summarize by average_happiness for the mean of the life ladder and then we sort the data using the arrange function with region and in descending order, the average_happiness. Then, print happiest_regions.  
+```{r}
+happiest_regions <- combined_data %>%
+  group_by(Region, Year) %>%
+  summarize(Average_Happiness = mean(`Life Ladder`)) %>%
+  arrange(Region, desc(Average_Happiness))
+
+print(happiest_regions)
+```
+
+## 2. How is happiness distributed by region? Summarize happiness by finding the average (mean), 25th percentile (quantile(x, .25)), and 75th percentile (quantile(x, .75)) by region for each year.
+
+#Answer: a dataset (combined_data) related to happiness metrics, specifically grouping the data by Year and Region and then calculating key summary statistics for each group: the mean, 25th percentile, and 75th percentile of the "Life Ladder" score, excluding missing values. The resultant summarized data, happiness_summary_by_region_year.
+```{r}
+# Summarizing happiness by region for each year
+happiness_summary_by_region_year <- combined_data %>%
+  group_by(`Year`, `Region`) %>%
+  summarise(
+    Mean_Happiness = mean(`Life Ladder`, na.rm = TRUE),
+    Q25_Happiness = quantile(`Life Ladder`, 0.25, na.rm = TRUE),
+    Q75_Happiness = quantile(`Life Ladder`, 0.75, na.rm = TRUE)
+  )
+
+ 
+
+# Viewing the summarized data
+head(happiness_summary_by_region_year)
+
+print(happiness_summary_by_region_year)
+```
+
+### This code takes a dataset with information about happiness by region, groups the data by region, and calculates summary statistics (mean, Q25, and Q75) for each region. The results are stored in a new data frame and displayed for review.
+```{r}
+# Overall summary of happiness by region without considering years
+overall_happiness_summary_by_region <- combined_data %>%
+  group_by(`Region`) %>%
+  summarise(
+    Overall_Mean_Happiness = mean(`Life Ladder`, na.rm = TRUE),
+    Overall_Q25_Happiness = quantile(`Life Ladder`, 0.25, na.rm = TRUE),
+    Overall_Q75_Happiness = quantile(`Life Ladder`, 0.75, na.rm = TRUE)
+  )
+
+print(overall_happiness_summary_by_region)
+
+# Viewing the overall summarized data
+head(overall_happiness_summary_by_region)
+```
+
+## 3. Team-Generated Question: What are the top 3 unhappiest regions in 2021 so that we can best direct charity/funds and donations?
+Combined_data is assigned to the region_21_top3_unhappiest and then the pipe operator is used to add the filter function to filter fo the year 2021 adn then group by region and then summarize by the mean of the life ladder. We then create a vector to rename the columns to Region and life ladder, and then we sort the columns using the arrange function and then get the top 3 rows using the head function with n = 3.
+```{r}
+region_21_top3_unhappiest = 
+combined_data %>% 
+  filter(`Year`=='2021') %>% group_by(`Region`) %>% summarize(mean(`Life Ladder`)) 
+
+colnames(region_21_top3_unhappiest) <- c('Region','Life_Ladder')
+
+region_21_top3_unhappiest %>% arrange(`Life_Ladder`) %>% head(n=3)
+```
+
