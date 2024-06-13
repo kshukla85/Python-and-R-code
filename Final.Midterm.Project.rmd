@@ -1,6 +1,6 @@
 ---
 title: "Midterm Project"
-author: "MSQM Health Analytics - Team 2 \n\n **Felecia Manning** (fm150), **Spencer Millen** (smm246), **Kunal Shukla** (ks765),  \n\n **Lauren Siewny** (les62), **Ifrah Sohail** (is172), **Pengxi Zheng** (pz68)"
+author: "MSQM Health Analytics - **Kunal Shukla** (ks765)
 date: "10/28/2020"
 output:
   pdf_document: default
