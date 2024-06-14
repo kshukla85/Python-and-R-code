@@ -2,7 +2,7 @@
 Projects
 
 
-# MSQM Health Analytics - Team 2
+# MSQM Health Analytics 
 
 ### Author:
 - Kunal Shukla (ks765)
