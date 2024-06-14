@@ -4,7 +4,7 @@ output:
   html_document: default
 ---
 Title: "Group Assignment 1"
-Authors: "Shukla, Kunal(ks765)", "Millen, Spencer(smm246)", "Sohail, Ifrah(is172)", "Siewny, Lauren(Les62)", "Zheng, Peng Xi(pz68)", "Manning, Felecia(fm150)"
+Author: "Shukla, Kunal(ks765)"
 Date: "10/16/2022"
 Output:
   html_document: default
